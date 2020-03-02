@@ -81,9 +81,6 @@ void ssd1306_commandList(const uint8_t *c, uint8_t n) {
 
 void lcdInit()
 {
-_delay_ms(2);
-
-
 // Init sequence
 static const uint8_t  init1[] = {
 	SSD1306_DISPLAYOFF,                   // 0xAE
@@ -92,37 +89,35 @@ static const uint8_t  init1[] = {
 SSD1306_SETMULTIPLEX };               // 0xA8
 ssd1306_commandList(init1, sizeof(init1));
 ssd1306_command1(SCREEN_HEIGHT - 1);
-_delay_ms(2);
+
 static const uint8_t init2[] = {
 	SSD1306_SETDISPLAYOFFSET,             // 0xD3
 	0x0,                                  // no offset
 	SSD1306_SETSTARTLINE | 0x0,           // line #0
 SSD1306_CHARGEPUMP };                 // 0x8D
 ssd1306_commandList(init2, sizeof(init2));
-_delay_ms(2);
+
 ssd1306_command1( 0x14);
-_delay_ms(2);
+
 static const uint8_t  init3[] = {
 	SSD1306_MEMORYMODE,                   // 0x20
 	0x00,                                 // 0x0 act like ks0108
 	SSD1306_SEGREMAP | 0x1,
 SSD1306_COMSCANDEC };
 ssd1306_commandList(init3, sizeof(init3));
-_delay_ms(2);
 
 static const uint8_t init4b[] = {
 	SSD1306_SETCOMPINS,                 // 0xDA
 	0x12,
 SSD1306_SETCONTRAST };              // 0x81
 ssd1306_commandList(init4b, sizeof(init4b));
-_delay_ms(2);
+
 ssd1306_command1( 0xCF);
-_delay_ms(2);
 
 ssd1306_command1(SSD1306_SETPRECHARGE); // 0xd9
-_delay_ms(2);
+
 ssd1306_command1( 0xF1);
-_delay_ms(2);
+
 static const uint8_t  init5[] = {
 	SSD1306_SETVCOMDETECT,               // 0xDB
 	0x40,
@@ -130,24 +125,21 @@ static const uint8_t  init5[] = {
 	SSD1306_NORMALDISPLAY,               // 0xA6
 	SSD1306_DEACTIVATE_SCROLL,
 SSD1306_DISPLAYON };                 // Main screen turn on
-ssd1306_commandList(init5, sizeof(init5));
-_delay_ms(2);
-//  TRANSACTION_END
-_delay_ms(2);
 
+ssd1306_commandList(init5, sizeof(init5));
 }
 
 void drawImage(uint8_t pageStart, uint8_t segStart, uint8_t sizeX, uint8_t sizeY, const unsigned char* img)
 {
-	const uint8_t egg_cmd[] = {SSD1306_PAGEADDR, pageStart, (uint8_t)(pageStart+(sizeY+7)/8 -1) , SSD1306_COLUMNADDR, segStart, (uint8_t)(segStart+sizeX-1) };
+	const uint8_t cmd[] = {SSD1306_PAGEADDR, pageStart, (uint8_t)(pageStart+(sizeY+7)/8 -1) , SSD1306_COLUMNADDR, segStart, (uint8_t)(segStart+sizeX-1) };
 	uint8_t bytesOut = 1;
-	ssd1306_commandList(egg_cmd, sizeof(egg_cmd));
+	ssd1306_commandList(cmd, sizeof(cmd));
 	TinyWireM.beginTransmission(ADDR);
 	TinyWireM.send((uint8_t)0x40);
 	
-	for (int page = 0; page < (sizeY+7)/8; page++)
+	for (uint8_t page = 0; page < (sizeY+7)/8; page++)
 	{
-		for (int seg = 0; seg < sizeX; seg++)
+		for (uint8_t seg = 0; seg < sizeX; seg++)
 		{
 			if(bytesOut >= 16)
 			{
@@ -172,9 +164,9 @@ void clearRegion(uint8_t page, uint8_t seg, uint8_t pageEnd, uint8_t segEnd)
 	TinyWireM.beginTransmission(ADDR);
 	TinyWireM.send((uint8_t)0x40);
 	
-	for (int page = 0; page < pageEnd+1; page++)
+	for (uint8_t page = 0; page < pageEnd+1; page++)
 	{
-		for (int seg = 0; seg < segEnd+1; seg++)
+		for (uint8_t seg = 0; seg < segEnd+1; seg++)
 		{
 			if(bytesOut >= 16)
 			{
